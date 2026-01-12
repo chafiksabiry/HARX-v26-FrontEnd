@@ -36,8 +36,8 @@ export interface AvailablePhoneNumber {
   provider?: 'telnyx' | 'twilio';
 }
 
-// Force use of backend URL (port 5000) instead of frontend (port 3000)
-const BASE_URL = 'http://localhost:5000/api';
+// Use backend URL from environment or fallback to Netlify backend
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://harxv26back.netlify.app/api';
 
 // Create axios instance with default config
 const api = axios.create({
