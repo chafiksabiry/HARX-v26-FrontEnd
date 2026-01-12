@@ -434,8 +434,8 @@ class AuthService {
     try {
       const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
         sender: {
-          name: process.env.SMTP_SENDER_NAME || 'HARX',
-          email: process.env.BREVO_FROM_EMAIL || 'no-reply@harx.ai'
+          name: process.env.SMTP_SENDER_NAME ,
+          email: process.env.BREVO_FROM_EMAIL
         },
         to: [{
           email: email,
