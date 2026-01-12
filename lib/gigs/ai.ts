@@ -1,7 +1,7 @@
 import { GigData, GigSuggestion } from '@/types/gigs';
 // import { generateMockGigSuggestions } from './mockData';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_GIGS_API || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://harxv26back.netlify.app/api';
 
 // Configuration pour activer/désactiver le mode mock
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || false;

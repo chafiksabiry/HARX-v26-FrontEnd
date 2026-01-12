@@ -2,9 +2,9 @@ import axios from 'axios';
 
 const getApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_DASHBOARD_API || 'https://harxv26back.netlify.app/api';
   }
-  return 'http://localhost:5000/api';
+  return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://harxv26back.netlify.app/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();

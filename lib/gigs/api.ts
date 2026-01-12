@@ -2,7 +2,7 @@ import { GigData } from '../../types/gigs';
 import Cookies from 'js-cookie';
 import api from '@/lib/rep-profile/client'; // Use the central axios client
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_GIGS_API || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://harxv26back.netlify.app/api';
 
 // Types for countries API
 export interface Country {

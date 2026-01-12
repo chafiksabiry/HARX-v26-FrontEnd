@@ -1,11 +1,11 @@
 import { Rep, Gig, Match, MatchResponse, MatchingWeights, GigAgentRequest } from '@/types/matching';
 
-// URLs des APIs - utilise harx2-backend (localhost:5000)
+// URLs des APIs - backend API
 const getBackendUrl = () => {
   if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    return process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || process.env.NEXT_PUBLIC_DASHBOARD_API?.replace('/api', '') || 'https://harxv26back.netlify.app';
   }
-  return 'http://localhost:5000';
+  return process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || 'https://harxv26back.netlify.app';
 };
 
 const BACKEND_URL = getBackendUrl();

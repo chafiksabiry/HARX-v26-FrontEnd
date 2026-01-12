@@ -8,7 +8,7 @@ export const getProfile = async (userId?: string) => {
     const endpoint = userId ? `/profiles/${userId}` : '/profiles';
     
     // Check if API URL is configured
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://harxv26back.netlify.app/api';
     console.log('Fetching profile from:', `${API_URL}${endpoint}`);
     
     const { data } = await api.get(endpoint);
@@ -23,7 +23,7 @@ export const getProfile = async (userId?: string) => {
     if (!error.response) {
       console.error(`Network error fetching profile${userId ? ` for user ${userId}` : ''}:`, error.message);
       console.error('This usually means the backend server is not running or not accessible.');
-      console.error('Please ensure the backend is running on', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000');
+      console.error('Please ensure the backend is running on', process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://harxv26back.netlify.app/api');
       // Return null for network errors to allow the app to continue
       return null;
     }
