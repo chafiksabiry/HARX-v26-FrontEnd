@@ -45,15 +45,7 @@ fileSchema.pre('save', async function() {
   this.updatedAt = new Date();
 });
 
-// Always delete cached model to force fresh compilation
-if (mongoose.models.File) {
-  delete mongoose.models.File;
-}
-if (mongoose.connection.models.File) {
-  delete mongoose.connection.models.File;
-}
-
-export default mongoose.model('File', fileSchema);
+export default mongoose.models.File || mongoose.model('File', fileSchema);
 
 
 

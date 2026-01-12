@@ -1,4 +1,19 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+
+export interface ILead extends Document {
+  userId: mongoose.Types.ObjectId;
+  gigId: mongoose.Types.ObjectId;
+  companyId: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  phone: string;
+  status: 'new' | 'contacted' | 'qualified' | 'converted' | 'lost';
+  source: string;
+  notes: string;
+  assignedTo: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const leadSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

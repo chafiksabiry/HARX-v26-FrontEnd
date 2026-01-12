@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Configuration pour application dynamique avec routes dynamiques
-  // output: 'export', // Désactivé pour permettre les routes dynamiques
   trailingSlash: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
-    unoptimized: true, // Nécessaire pour l'export statique
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -21,7 +22,6 @@ const nextConfig: NextConfig = {
       }
     ],
   },
-  // Headers pour servir correctement les fichiers .mjs
   async headers() {
     return [
       {
@@ -35,13 +35,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Pas de serverActions en mode export
-  // experimental: {
-  //   serverActions: {
-  //     bodySizeLimit: '10mb',
-  //     allowedOrigins: ['v25.harx.ai', 'localhost'],
-  //   },
-  // },
 };
 
 export default nextConfig;

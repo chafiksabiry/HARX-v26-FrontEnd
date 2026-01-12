@@ -78,7 +78,7 @@ export interface TechnicalSkill {
   _id: string;
   name: string;
   description: string;
-  category: string;
+  category: 'soft' | 'technical' | 'professional';
   isActive: boolean;
   __v: number;
   createdAt: string;
@@ -89,7 +89,7 @@ export interface SoftSkill {
   _id: string;
   name: string;
   description: string;
-  category: string;
+  category: 'soft' | 'technical' | 'professional';
   isActive: boolean;
   __v: number;
   createdAt: string;
@@ -100,7 +100,7 @@ export interface ProfessionalSkill {
   _id: string;
   name: string;
   description: string;
-  category: string;
+  category: 'soft' | 'technical' | 'professional';
   isActive: boolean;
   __v: number;
   createdAt: string;

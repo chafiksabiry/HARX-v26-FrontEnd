@@ -9,7 +9,8 @@ const getRedirectPath = async (userId: string, token?: string): Promise<string> 
   if (!token) {
     return '/onboarding/choice';
   }
-  return await getAuthRedirect(userId, token);
+  const redirect = await getAuthRedirect(userId, token);
+  return redirect || '/onboarding/choice';
 };
 
 export const handleLinkedInSignUp = () => {

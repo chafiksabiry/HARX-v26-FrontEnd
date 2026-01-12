@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import GlobalNav from "../components/GlobalNav";
 import AuthGuard from "../components/AuthGuard";
+import Head from "next/head";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <title>Harx AI - Sales Representative Platform</title>
+        <meta name="description" content="AI-powered sales representative platform" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

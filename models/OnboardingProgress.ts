@@ -64,15 +64,7 @@ OnboardingProgressSchema.pre('save', async function() {
   this.updatedAt = new Date();
 });
 
-// Always delete cached model to force fresh compilation
-if (mongoose.models.OnboardingProgress) {
-  delete mongoose.models.OnboardingProgress;
-}
-if (mongoose.connection.models.OnboardingProgress) {
-  delete mongoose.connection.models.OnboardingProgress;
-}
-
-export default mongoose.model<IOnboardingProgress>('OnboardingProgress', OnboardingProgressSchema);
+export default mongoose.models.OnboardingProgress || mongoose.model<IOnboardingProgress>('OnboardingProgress', OnboardingProgressSchema);
 
 
 

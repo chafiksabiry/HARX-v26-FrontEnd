@@ -1,5 +1,29 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
+
+export interface IUser extends Document {
+  email: string;
+  fullName: string;
+  password?: string;
+  phone?: string;
+  linkedInId?: string;
+  isVerified: boolean;
+  verificationCode?: {
+    code?: string;
+    expiresAt?: Date;
+    otp?: number;
+    otpExpiresAt?: Date;
+  };
+  ipHistory: Array<{
+    ip: string;
+    timestamp: Date;
+    action: string;
+  }>;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -97,13 +121,5 @@ userSchema.methods.comparePassword = async function(candidatePassword: string) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Always delete cached model to force fresh compilation
-if (mongoose.models.User) {
-  delete mongoose.models.User;
-}
-if (mongoose.connection.models.User) {
-  delete mongoose.connection.models.User;
-}
-
-const User = mongoose.model('User', userSchema);
+const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
 export default User;

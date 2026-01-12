@@ -11,7 +11,7 @@ import Cookies from 'js-cookie';
  *    - Si company mais pas de gigs → /gigs/create
  *    - Si company et a des gigs → orchestrator company
  */
-export async function getAuthRedirect(userId: string, token: string): Promise<string> {
+export async function getAuthRedirect(userId: string, token: string): Promise<string | null> {
   try {
     // 1. Vérifier si premier login et type utilisateur
     let checkFirstLogin, checkUserType;
@@ -165,9 +165,11 @@ export async function getAuthRedirect(userId: string, token: string): Promise<st
             profileData = profileResponse.data.data;
             if (profileData._id) {
               agentId = profileData._id;
-              Cookies.set('agentId', agentId);
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('agentId', agentId);
+              if (agentId) {
+                Cookies.set('agentId', agentId);
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('agentId', agentId);
+                }
               }
             }
           }

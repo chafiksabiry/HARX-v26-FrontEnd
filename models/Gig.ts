@@ -1,4 +1,33 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+
+export interface IGig extends Document {
+  title: string;
+  description: string;
+  category: string;
+  userId: mongoose.Types.ObjectId;
+  companyId: mongoose.Types.ObjectId;
+  destination_zone: mongoose.Types.ObjectId;
+  sectors: any[];
+  activities: string[];
+  industries: string[];
+  seniority: {
+    level: string;
+    yearsExperience: string;
+  };
+  skills: {
+    professional: Array<{ skill: string; level: number; details: string }>;
+    technical: Array<{ skill: string; level: number; details: string }>;
+    soft: Array<{ skill: string; level: number; details: string }>;
+    languages: Array<{ language: string; proficiency: string; iso639_1: string }>;
+  };
+  availability: any;
+  remuneration: any;
+  contractTerms: any;
+  teamStructure: any;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const GigSchema = new mongoose.Schema(
   {

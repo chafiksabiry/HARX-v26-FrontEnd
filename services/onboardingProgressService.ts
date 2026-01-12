@@ -45,7 +45,7 @@ class OnboardingProgressService {
     return progress;
   }
 
-  async updateStepProgress(companyId: string, phaseId: number, stepId: number, status: string) {
+  async updateStepProgress(companyId: string, phaseId: number, stepId: number, status: 'completed' | 'pending' | 'in_progress') {
     await dbConnect();
     const progress = await OnboardingProgress.findOne({ companyId });
     if (!progress) {
