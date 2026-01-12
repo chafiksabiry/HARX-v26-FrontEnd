@@ -143,9 +143,8 @@ const ApprovalPublishing = () => {
   // Get backend URL - defined early so it's available for all functions
   const getBackendUrl = () => {
     if (typeof window !== 'undefined') {
-      return process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      return process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL ;
     }
-    return 'http://localhost:5000';
   };
 
   const BACKEND_URL = getBackendUrl();

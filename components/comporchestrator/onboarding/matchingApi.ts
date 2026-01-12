@@ -3,9 +3,8 @@ import { Rep, Gig, Match, MatchResponse, MatchingWeights, GigAgentRequest } from
 // URLs des APIs - utilise harx2-backend (localhost:5000)
 const getBackendUrl = () => {
   if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    return process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL;
   }
-  return 'http://localhost:5000';
 };
 
 const BACKEND_URL = getBackendUrl();

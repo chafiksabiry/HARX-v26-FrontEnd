@@ -74,7 +74,7 @@ function CallsPanel() {
     try {
       if (!currentUser?.id) return;
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API;
       const response = await axios.get(`${apiUrl}/api/calls`, {
         params: { userId: currentUser.id }
       });

@@ -235,7 +235,7 @@ function CompanyProfile() {
     try {
       setLoading(true);
       setError(null);
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:5000/api';
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API;
       const response = await axios.get<CompanyResponse>(
         `${API_BASE_URL}/companies/${companyId}`
       );
@@ -303,7 +303,7 @@ function CompanyProfile() {
       console.log('📊 Current company data:', company);
       
       // Sauvegarder les informations de l'entreprise
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:5000/api';
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API;
       await axios.put(
         `${API_BASE_URL}/companies/${companyId}`,
         company

@@ -310,9 +310,7 @@ const ScriptGenerator: React.FC = () => {
     
     try {
       // Use harx2-backend (localhost:5000) for gigs API
-      const backendUrl = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
-        : 'http://localhost:5000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL
       const gigsApiUrl = backendUrl.endsWith('/api') ? backendUrl.replace('/api', '') : backendUrl;
 
       const response = await fetch(`${gigsApiUrl}/api/gigs/company/${companyId}`);
@@ -338,9 +336,7 @@ const ScriptGenerator: React.FC = () => {
       const companyId = getCompanyId();
       if (!companyId) throw new Error('Company ID not found');
       // Use harx2-backend (localhost:5000)
-      const backendUrl = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
-        : 'http://localhost:5000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL
       
       // Add status filter to URL if not 'all'
       let url = `${backendUrl}/api/scripts/company/${companyId}`;
@@ -367,9 +363,7 @@ const ScriptGenerator: React.FC = () => {
     setScriptsError(null);
     try {
       // Use harx2-backend (localhost:5000)
-      const backendUrl = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
-        : 'http://localhost:5000';
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL
       const url = `${backendUrl}/scripts/gig/${gigId}`;
       console.log('[SCRIPTS] Fetching scripts for gigId:', gigId, 'URL:', url);
       const response = await fetch(url);
@@ -501,9 +495,7 @@ const ScriptGenerator: React.FC = () => {
     setUpdatingScriptId(scriptId);
     try {
       // Use harx2-backend (localhost:5000)
-      const backendUrl = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
-        : 'http://localhost:5000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL
       
       const response = await fetch(`${backendUrl}/api/scripts/${scriptId}/status`, {
         method: 'PUT',
@@ -550,9 +542,7 @@ const ScriptGenerator: React.FC = () => {
     setDeletingScriptId(scriptId);
     try {
       // Use harx2-backend (localhost:5000)
-      const backendUrl = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
-        : 'http://localhost:5000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL
       
       const response = await fetch(`${backendUrl}/api/scripts/${scriptId}`, {
         method: 'DELETE',
@@ -591,9 +581,7 @@ const ScriptGenerator: React.FC = () => {
     setRegeneratingScriptId(scriptId);
     try {
       // Use harx2-backend (localhost:5000)
-      const backendUrl = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
-        : 'http://localhost:5000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL
       const companyId = getCompanyId();
       if (!companyId) throw new Error('Company ID not found');
       
@@ -637,9 +625,7 @@ const ScriptGenerator: React.FC = () => {
     try {
       setProcessingSteps(prev => [...prev, stepIndex]);
       // Use harx2-backend (localhost:5000)
-      const backendUrl = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
-        : 'http://localhost:5000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL
       const companyId = getCompanyId();
       if (!companyId) throw new Error('Company ID not found');
       
@@ -690,9 +676,7 @@ const ScriptGenerator: React.FC = () => {
       setProcessingSteps(prev => [...prev, stepIndex]);
       
       // Use harx2-backend (localhost:5000)
-      const backendUrl = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
-        : 'http://localhost:5000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL
       
       // Petit délai pour assurer que l'état est mis à jour
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -741,9 +725,7 @@ const ScriptGenerator: React.FC = () => {
   const handleAddReplica = async (scriptId: string, phase: string, actor: string) => {
     try {
       // Use harx2-backend (localhost:5000)
-      const backendUrl = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
-        : 'http://localhost:5000';
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL
       
       // Find the index where to insert the new replica
       const phaseSteps = selectedScript?.script.filter(s => s.phase === phase) || [];
@@ -801,9 +783,7 @@ const ScriptGenerator: React.FC = () => {
 
     try {
       // Use harx2-backend (localhost:5000)
-      const backendUrl = typeof window !== 'undefined' 
-        ? (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000')
-        : 'http://localhost:5000';
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL
       
       // Use the new dedicated endpoint
       const response = await fetch(`${backendUrl}/api/scripts/${scriptId}/replicas/${stepIndex}`, {

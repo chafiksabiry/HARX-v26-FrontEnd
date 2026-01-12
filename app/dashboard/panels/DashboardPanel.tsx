@@ -220,7 +220,7 @@ function LeadManagementSection() {
     
     // Rediriger vers l'authentification Zoho avec un paramètre de temps pour éviter le cache
     const timestamp = new Date().getTime();
-    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API;
     window.location.href = `${apiUrl}/zoho/auth?t=${timestamp}`;
   };
 
@@ -240,7 +240,7 @@ function LeadManagementSection() {
     }
     
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API;
       const response = await fetch(`${apiUrl}/zoho/deals`, {
         method: "GET",
         headers: {
@@ -301,7 +301,7 @@ function LeadManagementSection() {
     setIsLoading(true);
     try {
       // Cette requête devrait être faite par votre backend pour des raisons de sécurité
-      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API;
       const response = await fetch(`${apiUrl}/zoho/auth/token`, {
         method: "POST",
         headers: {

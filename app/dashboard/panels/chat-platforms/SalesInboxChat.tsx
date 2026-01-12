@@ -105,7 +105,7 @@ const SalesInboxChat: React.FC = () => {
     }
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
       const res = await axios.get(`${apiUrl}/zoho/chats`, {
         headers: {
           "Authorization": `Zoho-oauthtoken ${token}`,
@@ -158,7 +158,7 @@ const SalesInboxChat: React.FC = () => {
     }
     
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
       const res = await axios.get(
         `${apiUrl}/zoho/chats/${chatId}/messages`,
         { 
@@ -208,7 +208,7 @@ const SalesInboxChat: React.FC = () => {
     }
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
       const res = await axios.post(
         `${apiUrl}/zoho/chats/${activeChat}`,
         { text: message },
@@ -267,7 +267,7 @@ const SalesInboxChat: React.FC = () => {
         refreshToken: "xxxx"
       };
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
       const configResponse = await fetch(`${apiUrl}/zoho/configure`, {
         method: 'POST',
         headers: {

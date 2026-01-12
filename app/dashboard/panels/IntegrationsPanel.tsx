@@ -33,7 +33,7 @@ import {
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 
-const API_BASE_URL_ZOHO = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL_ZOHO = process.env.NEXT_PUBLIC_API_URL ;
 
 interface UserConfig {
   clientId: string;

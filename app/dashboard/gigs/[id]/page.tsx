@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API
 
 interface GigDetails {
   _id: string;

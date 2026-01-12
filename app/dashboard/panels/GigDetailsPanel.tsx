@@ -120,7 +120,7 @@ function GigDetailsPanel() {
 
       try {
         setLoading(true);
-        const apiUrl = process.env.NEXT_PUBLIC_GIGS_API || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
+        const apiUrl = process.env.NEXT_PUBLIC_GIGS_API || process.env.NEXT_PUBLIC_API_BASE_URL ;
         const response = await fetch(`${apiUrl}/gigs/${gigId}`);
         
         if (!response.ok) {

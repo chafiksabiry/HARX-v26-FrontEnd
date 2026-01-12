@@ -51,7 +51,7 @@ function EmailsPanel() {
   const fetchEmails = async () => {
     let accessToken = localStorage.getItem("zoho_access_token");
     if (!accessToken) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_API;
         window.location.href = `${apiUrl}/zoho/auth`;
         return;
     }
@@ -64,7 +64,7 @@ function EmailsPanel() {
       };
       
       const endpoint = endpoints[activeFilter as keyof typeof endpoints] || '/zoho/emails/inbox';
-      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL ;
       const response = await axios.get(`${apiUrl}${endpoint}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -153,7 +153,7 @@ function EmailsPanel() {
     if (!accessToken) return;
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL ;
       await axios.post(
         `${apiUrl}/zoho/emails/${email.id}/archive`,
         {},
@@ -268,7 +268,7 @@ Date: ${formatDate(email.receivedTime)}
     if (!accessToken) return;
     
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL ;
       const [sentResponse, archivedResponse, inboxResponse] = await Promise.all([
         axios.get(`${apiUrl}/zoho/emails/sent`, {
           headers: { Authorization: `Bearer ${accessToken}` },

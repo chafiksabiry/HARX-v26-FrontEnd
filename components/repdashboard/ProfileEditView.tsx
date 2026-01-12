@@ -172,7 +172,7 @@ const uploadPhoto = async (agentId: string, photoFile: Blob): Promise<PhotoUploa
   formData.append('photo', photoFile, 'profile-photo.jpg');
 
   try {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL ;
     
     const response = await fetch(`${API_URL}/profiles/${agentId}/photo`, {
       method: 'PUT',
@@ -276,7 +276,7 @@ const uploadPresentationVideo = async (
       reject(new Error('Network error occurred'));
     });
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL ;
     xhr.open('PUT', `${API_URL}/profiles/${agentId}/video`);
     xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.send(formData);
@@ -648,7 +648,7 @@ export const ProfileEditView: React.FC<ProfileEditViewProps> = ({ profile: initi
       try {
         setLoadingIndustries(true);
         console.log('🏭 Loading industries...');
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL ;
         const response = await fetch(`${API_URL}/industries`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -677,7 +677,7 @@ export const ProfileEditView: React.FC<ProfileEditViewProps> = ({ profile: initi
       try {
         setLoadingActivities(true);
         console.log('🎯 Loading activities...');
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL ;
         const response = await fetch(`${API_URL}/activities`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -1006,7 +1006,7 @@ export const ProfileEditView: React.FC<ProfileEditViewProps> = ({ profile: initi
         }
 
         console.log('🔗 Deleting photo for profile:', profile._id);
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL ;
         const deleteResponse = await fetch(`${API_URL}/profiles/${profile._id}/photo`, {
           method: 'DELETE',
           headers: {
@@ -1932,7 +1932,7 @@ export const ProfileEditView: React.FC<ProfileEditViewProps> = ({ profile: initi
         throw new Error('No authentication token found');
       }
 
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL ;
       const response = await fetch(`${API_URL}/profiles/${profile._id}/video`, {
         method: 'DELETE',
         headers: {
