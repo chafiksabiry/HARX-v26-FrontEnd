@@ -1,0 +1,120 @@
+import Cookies from 'js-cookie';
+import { zoho as zohoApi } from '@/lib/api';
+
+class ZohoService {
+  private static instance: ZohoService;
+  private config: {
+    accessToken: string | null;
+    refreshToken: string | null;
+    tokenExpiry: number | null;
+    isConfigured: boolean;
+  } = {
+    accessToken: null,
+    refreshToken: null,
+    tokenExpiry: null,
+    isConfigured: false
+  };
+
+  private constructor() {
+    // Initialisation silencieuse
+    this.initializeFromServer().catch(error => {
+      console.debug('ZohoService: Initial configuration not found', error);
+    });
+  }
+
+  public static getInstance(): ZohoService {
+    if (!ZohoService.instance) {
+      ZohoService.instance = new ZohoService();
+    }
+    return ZohoService.instance;
+  }
+
+  private async initializeFromServer() {
+    try {
+      const userId = Cookies.get('userId');
+      if (!userId) {
+        console.debug('ZohoService: No userId found in cookies');
+        return;
+      }
+
+      try {
+        const config = await zohoApi.getConfigByUserId(userId);
+        this.config.accessToken = config.access_token || config.accessToken;
+        this.config.refreshToken = config.refresh_token || config.refreshToken;
+        this.config.tokenExpiry = Date.now() + ((config.expires_in || config.expiresIn || 3600) * 1000);
+        this.config.isConfigured = true;
+        console.debug('ZohoService: Configuration loaded successfully');
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          console.debug('ZohoService: No configuration found for user');
+        } else {
+          console.debug('ZohoService: Failed to load configuration', error);
+        }
+        throw error;
+      }
+    } catch (error) {
+      console.debug('ZohoService: Error initializing from server', error);
+    }
+  }
+
+  public async refreshToken() {
+    try {
+      const userId = Cookies.get('userId');
+      if (!userId) {
+        console.debug('ZohoService: No userId found for token refresh');
+        return false;
+      }
+
+      try {
+        const data = await zohoApi.refreshTokenByUserId(userId);
+        this.config.accessToken = data.access_token || data.accessToken;
+        this.config.refreshToken = data.refresh_token || data.refreshToken;
+        this.config.tokenExpiry = Date.now() + ((data.expires_in || data.expiresIn || 3600) * 1000);
+        console.debug('ZohoService: Token refreshed successfully');
+        return true;
+      } catch (error: any) {
+        console.debug('ZohoService: Failed to refresh token', error.response?.status || error.message);
+        return false;
+      }
+    } catch (error) {
+      console.debug('ZohoService: Error refreshing token', error);
+      return false;
+    }
+  }
+
+  public isConfigured(): boolean {
+    return this.config.isConfigured;
+  }
+
+  public getAccessToken(): string | null {
+    return this.config.accessToken;
+  }
+
+  public async getValidAccessToken(): Promise<string | null> {
+    try {
+      if (!this.config.accessToken || !this.config.tokenExpiry || Date.now() >= this.config.tokenExpiry) {
+        const refreshed = await this.refreshToken();
+        if (!refreshed) {
+          console.debug('ZohoService: Failed to get valid access token');
+          return null;
+        }
+      }
+      return this.config.accessToken;
+    } catch (error) {
+      console.debug('ZohoService: Error getting valid access token', error);
+      return null;
+    }
+  }
+
+  public resetConfiguration(): void {
+    this.config = {
+      accessToken: null,
+      refreshToken: null,
+      tokenExpiry: null,
+      isConfigured: false
+    };
+    console.debug('ZohoService: Configuration reset');
+  }
+}
+
+export default ZohoService; 
