@@ -167,6 +167,11 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
           const result = await auth.login({ email: formData.email, password: formData.password });
           console.log("result", result);
 
+          // Handle non-throwing errors (due to axios validateStatus < 500)
+          if (result && result.success === false) {
+            throw new Error(result.error || 'Login failed');
+          }
+
           // Récupérer le code depuis la réponse du login
           // Support multiple response structures and ensure we catch it
           const loginData = result.data || result;
