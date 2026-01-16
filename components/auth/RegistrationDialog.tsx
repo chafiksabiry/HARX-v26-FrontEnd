@@ -34,7 +34,7 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
- 
+
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
@@ -54,7 +54,7 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
 
   const handleNext = async () => {
     const newErrors: Record<string, string> = {};
-  
+
     try {
       switch (step) {
         case 'name':
@@ -64,7 +64,7 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
             setStep('email');
           }
           break;
-  
+
         case 'email':
           if (!validateEmail(formData.email)) {
             newErrors.email = 'Please enter a valid email address';
@@ -72,7 +72,7 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
             setStep('password');
           }
           break;
-  
+
         case 'password':
           if (!validatePassword(formData.password)) {
             newErrors.password = 'Password must be at least 8 characters with letters and numbers';
@@ -80,7 +80,7 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
             setStep('phone');
           }
           break;
-  
+
         case 'phone':
           if (!validatePhone(formData.phone)) {
             newErrors.phone = 'Please enter a valid phone number (at least 10 digits)';
@@ -88,13 +88,13 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
             setStep('terms');
           }
           break;
-  
+
         case 'terms':
           if (!formData.termsAccepted) {
             newErrors.terms = 'Please accept the terms and conditions';
           } else {
             setIsLoading(true);
-            
+
             let RegisterResult: any;
             // Register User
             try {
@@ -113,7 +113,7 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
             } catch (error) {
               // Extract error message from axios response if available
               const errorMessage = (error as any).response?.data?.message || (error as any).message;
-              
+
               if (errorMessage === 'Email already registered') {
                 newErrors.email = 'This email is already registered';
                 setStep('email');
@@ -125,107 +125,118 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
                 return;
               }
             }
-            
+
+            // Send verification email
             // Send verification email
             // Note: verificationCode is at the root of the response object
-            const verificationMail = await auth.sendVerificationEmail(formData.email, RegisterResult.verificationCode);
-            console.log("verification", verificationMail);
+            if (RegisterResult && (RegisterResult.verificationCode || RegisterResult.result?.verificationCode)) {
+              const codeToSend = RegisterResult.verificationCode || RegisterResult.result?.verificationCode;
+              const verificationMail = await auth.sendVerificationEmail(formData.email, codeToSend);
+              console.log("verification", verificationMail);
 
-            // En mode dev, afficher le code même si l'email a échoué
-            if (verificationMail.devMode && verificationMail.code) {
-              const isDev = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_NODE_ENV === 'development';
-              if (isDev) {
-                const devMessage = verificationMail.error 
-                  ? `Mode développement: Email non envoyé (${verificationMail.error.substring(0, 100)}...). Votre code de vérification est: ${verificationMail.code}`
-                  : `Mode développement: Votre code de vérification est: ${verificationMail.code}. Entrez-le ci-dessous.`;
-                // Stocker le message dev pour l'afficher dans l'étape de vérification
-                setErrors({ ...errors, general: devMessage });
-                console.log('📧 [DEV MODE] Verification code:', verificationMail.code);
+              // En mode dev, afficher le code même si l'email a échoué
+              if (verificationMail.devMode && verificationMail.code) {
+                const isDev = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_NODE_ENV === 'development';
+                if (isDev) {
+                  const devMessage = verificationMail.error
+                    ? `Mode développement: Email non envoyé (${verificationMail.error.substring(0, 100)}...). Votre code de vérification est: ${verificationMail.code}`
+                    : `Mode développement: Votre code de vérification est: ${verificationMail.code}. Entrez-le ci-dessous.`;
+                  // Stocker le message dev pour l'afficher dans l'étape de vérification
+                  setErrors({ ...errors, general: devMessage });
+                  console.log('📧 [DEV MODE] Verification code:', verificationMail.code);
+                }
               }
+            } else {
+              console.warn("⚠️ No verification code found in registration result");
             }
 
             // Send OTP
-            const OtpSendResult = await auth.sendOTP(RegisterResult.result._id, formData.phone);
-            console.log("OtpSendResult::", OtpSendResult);
-
-            setStep('verification');
+            if (RegisterResult && RegisterResult.result && RegisterResult.result._id) {
+              const OtpSendResult = await auth.sendOTP(RegisterResult.result._id, formData.phone);
+              console.log("OtpSendResult::", OtpSendResult);
+              setStep('verification');
+            } else {
+              console.error("❌ Cannot proceed: User ID missing in registration result", RegisterResult);
+              newErrors.general = "Registration successful but failed to proceed. Please try logging in.";
+              setErrors(newErrors);
+            }
           }
           break;
-  
+
         case 'verification':
           // Vérifier que l'utilisateur a entré un code de vérification pour l'email et l'OTP
           if (!formData.emailOTP || !formData.phoneOTP) {
             newErrors.verification = 'Please enter both the email verification code and the OTP code';
           } else {
             setIsLoading(true);
-  
+
             // Vérifier l'email
             const emailVerificationResult = await auth.verifyEmail({
               email: formData.email,
               code: formData.emailOTP
             });
-           console.log("emailVerificationResult",emailVerificationResult);
+            console.log("emailVerificationResult", emailVerificationResult);
             if (emailVerificationResult.result && emailVerificationResult.result.error) {
               newErrors.general = 'Invalid email verification code';
             } else {
               console.log("Email verification success");
-  
+
               // Vérifier l'OTP
               const storedUserId = localStorage.getItem('userId');
               console.log('Stored userId:', storedUserId);
 
-              if(!storedUserId){ newErrors.general = 'User ID not found in localStorage. Please try again.';}
+              if (!storedUserId) { newErrors.general = 'User ID not found in localStorage. Please try again.'; }
 
-              else{
+              else {
 
-              const otpVerificationResult = await auth.verifyOTP(storedUserId, formData.phoneOTP);
-              console.log("otpVerificationResult",otpVerificationResult);
+                const otpVerificationResult = await auth.verifyOTP(storedUserId, formData.phoneOTP);
+                console.log("otpVerificationResult", otpVerificationResult);
 
-              if (otpVerificationResult.error) {
-                newErrors.general = 'Invalid OTP. Please try again.';
-              } else {
-                console.log("OTP verification success");
-  
-                // Vérifier et activer le compte si tout est correct
-                const accountVerificationResult = await auth.verifyAccount(storedUserId);
-                if (accountVerificationResult.success) {
-                  console.log("Account verification success");
-  
-                  // Tout est validé, envoyer le token et rediriger
-                  setToken(emailVerificationResult.token);
-                  setStep('success');
-                  setShowProfilePrompt(true);
-
-                  // Utiliser la fonction de redirection centralisée
-                  try {
-                    const redirectTo = await getAuthRedirect(storedUserId, emailVerificationResult.token);
-                    console.log("Redirecting after registration to:", redirectTo);
-
-                    setTimeout(() => {
-                      if (redirectTo) {
-                        if (redirectTo.startsWith('http')) {
-                          window.location.href = redirectTo;
-                        } else {
-                          router.push(redirectTo);
-                        }
-                      }
-                    }, 1500);
-                  } catch (redirectError) {
-                    console.error('Error determining redirect path:', redirectError);
-                    // Fallback vers choice page en cas d'erreur
-                    setTimeout(() => {
-                      router.push('/onboarding/choice');
-                    }, 1500);
-                  }
+                if (otpVerificationResult.error) {
+                  newErrors.general = 'Invalid OTP. Please try again.';
                 } else {
-                  newErrors.general = accountVerificationResult.message;
+                  console.log("OTP verification success");
+
+                  // Vérifier et activer le compte si tout est correct
+                  const accountVerificationResult = await auth.verifyAccount(storedUserId);
+                  if (accountVerificationResult.success) {
+                    console.log("Account verification success");
+
+                    // Tout est validé, envoyer le token et rediriger
+                    setToken(emailVerificationResult.token);
+                    setStep('success');
+                    setShowProfilePrompt(true);
+
+                    // Utiliser la fonction de redirection centralisée
+                    try {
+                      const redirectTo = await getAuthRedirect(storedUserId, emailVerificationResult.token);
+                      console.log("Redirecting after registration to:", redirectTo);
+
+                      setTimeout(() => {
+                        if (redirectTo) {
+                          if (redirectTo.startsWith('http')) {
+                            window.location.href = redirectTo;
+                          } else {
+                            router.push(redirectTo);
+                          }
+                        }
+                      }, 1500);
+                    } catch (redirectError) {
+                      console.error('Error determining redirect path:', redirectError);
+                      // Fallback vers choice page en cas d'erreur
+                      setTimeout(() => {
+                        router.push('/onboarding/choice');
+                      }, 1500);
+                    }
+                  } else {
+                    newErrors.general = accountVerificationResult.message;
+                  }
                 }
-              }
               }
             }
           }
           break;
-  
+
         default:
           break;
       }
@@ -236,8 +247,8 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
       setErrors(newErrors);
     }
   };
-  
-  
+
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
@@ -245,7 +256,7 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
         <div className="space-y-6">
           <div className="text-center space-y-4">
             <div className="flex flex-col items-center space-y-2">
-              <Image 
+              <Image
                 src="/harx_ai_logo.jpeg"
                 alt="HARX Logo"
                 width={48}
@@ -355,14 +366,14 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
             <div className="space-y-4">
               <h2 className="text-2xl font-bold text-gray-800">Verify Your Account</h2>
               <p className="text-gray-600">We sent a verification code to {formData.email}. Please enter it below.</p>
-              
+
               {/* Afficher le message devMode si disponible */}
               {errors.general && errors.general.includes('Mode développement') && (
                 <div className="bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded-lg">
                   <p className="text-sm font-medium">{errors.general}</p>
                 </div>
               )}
-              
+
               <div className="relative">
                 <input
                   type="text"
@@ -374,17 +385,17 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
                 />
               </div>
               <div>
-                  <p className="text-gray-600 mb-2">Enter the 6-digit code sent to your phone</p>
-                  <input
-                    type="text"
-                    maxLength={6}
-                    value={formData.phoneOTP}
-                    onChange={(e) => setFormData({ ...formData, phoneOTP: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="000000"
-                  />
-                </div>
-                {errors.verification && <p className="text-red-500 text-sm">{errors.verification}</p>}
+                <p className="text-gray-600 mb-2">Enter the 6-digit code sent to your phone</p>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={formData.phoneOTP}
+                  onChange={(e) => setFormData({ ...formData, phoneOTP: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="000000"
+                />
+              </div>
+              {errors.verification && <p className="text-red-500 text-sm">{errors.verification}</p>}
 
             </div>
           )}
@@ -429,24 +440,24 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
                 )}
               </button>
             )}
-            
+
             {step === 'name' && (
-                 <>
-                       <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+              <>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                  </div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
-                </div>
-              </div>
-              <button
-                onClick={handleLinkedInSignUp}
-                className="w-full flex items-center justify-center space-x-2 bg-[#0077b5] text-white py-3 px-4 rounded-lg hover:bg-[#006396] transition-colors"
-              >
-                <Linkedin className="h-5 w-5" />
-                <span>Sign up with LinkedIn</span>
-              </button><p className="text-center text-sm text-gray-600">
+                <button
+                  onClick={handleLinkedInSignUp}
+                  className="w-full flex items-center justify-center space-x-2 bg-[#0077b5] text-white py-3 px-4 rounded-lg hover:bg-[#006396] transition-colors"
+                >
+                  <Linkedin className="h-5 w-5" />
+                  <span>Sign up with LinkedIn</span>
+                </button><p className="text-center text-sm text-gray-600">
                   Already have an account?{' '}
                   <button
                     onClick={onSignIn}
