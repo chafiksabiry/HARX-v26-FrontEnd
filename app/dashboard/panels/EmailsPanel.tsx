@@ -207,7 +207,8 @@ Date: ${formatDate(email.receivedTime)}
       console.log("Tentative de configuration avec:", configData);
       
       // Première étape : Configuration
-      const configResponse = await fetch('https://api-dashboard.harx.ai/api/zoho/configure', {
+      const dashboardApiUrl = process.env.NEXT_PUBLIC_DASHBOARD_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://harxv26back.netlify.app/api';
+      const configResponse = await fetch(`${dashboardApiUrl}/zoho/configure`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -225,7 +226,7 @@ Date: ${formatDate(email.receivedTime)}
       if (configResult.success) {
         console.log("Configuration réussie, récupération du token...");
         // Deuxième étape : Récupération du token
-        const tokenResponse = await fetch('https://api-dashboard.harx.ai/api/zoho/token', {
+        const tokenResponse = await fetch(`${dashboardApiUrl}/zoho/token`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
