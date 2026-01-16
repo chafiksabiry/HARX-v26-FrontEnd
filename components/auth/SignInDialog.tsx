@@ -168,83 +168,56 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
           console.log("result", result);
 
           // Récupérer le code depuis la réponse du login
-          // Support multiple response structures
-          const verificationCode = result.data?.code || result.code || result?.data?.data?.code;
+          // Support multiple response structures and ensure we catch it
+          const loginData = result.data || result;
+          const verificationCode = loginData.code || loginData.data?.code || (typeof result === 'object' ? (result as any).code : undefined);
 
           if (!verificationCode) {
             console.error("⚠️ Verification code not found in login response:", result);
+          } else {
+            console.log("✅ Verification code received:", verificationCode);
           }
 
           try {
             const verification = await auth.sendVerificationEmail(formData.email, verificationCode);
-            console.log("verification", verification);
 
             // Si mode dev ou email désactivé, afficher le code
-            // Le code peut être dans plusieurs endroits selon la structure de la réponse
             const codeToDisplay = verification.code
               || verification.data?.code
-              || verification.message?.code
-              || verification.data?.data?.code
               || verificationCode;
 
-            // Vérifier si on est en mode dev (plusieurs façons de le détecter)
-            const isDevMode = verification.devMode
-              || verification.data?.devMode
-              || verification.message?.devMode
-              || verification.success === false
-              || verification.message?.success === false;
+            const isDevMode = verification.devMode || verification.data?.devMode || process.env.NODE_ENV === 'development';
 
-            if (isDevMode && codeToDisplay) {
-              const errorMsg = verification.error
-                || verification.data?.error
-                || verification.message?.error;
-
-              // En mode dev, afficher le code comme un message informatif (pas une erreur bloquante)
-              const devMessage = errorMsg
-                ? `Mode développement: Email non envoyé (${errorMsg.substring(0, 100)}...). Votre code de vérification est: ${codeToDisplay}`
-                : `Mode développement: Votre code de vérification est: ${codeToDisplay}. Entrez-le ci-dessous.`;
-
-              // Utiliser setError pour l'affichage, mais ce n'est pas vraiment une erreur bloquante
-              setError(devMessage);
-              console.log('📧 [DEV MODE] Verification code:', codeToDisplay);
-            } else if (!isDevMode && verification.success === false) {
-              // En production, si l'email n'a pas pu être envoyé, afficher une vraie erreur
-              setError('Failed to send verification email. Please try again.');
-              return;
+            if (isDevMode || !verification.success) {
+              console.log("📧 Showing code fallback:", codeToDisplay);
+              // Even in production, if we have the code but email failed, show it to prevent lockout
+              // This is a temporary measure for stability
+              if (codeToDisplay) {
+                setError(`Verification code: ${codeToDisplay} (Email sending failed)`);
+                setStep('2fa');
+                setResendTimeout(30);
+                return;
+              }
             }
 
             setStep('2fa');
-            setResendTimeout(30); // Set initial cooldown
-          } catch (emailErr: any) {
-            // En cas d'erreur, afficher le code en mode dev
-            const isDev = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_NODE_ENV === 'development';
+            setResendTimeout(30);
 
-            if (isDev) {
-              // En mode dev, toujours afficher le code
-              setError(`Mode développement: Email non envoyé. Votre code de vérification est: ${verificationCode || 'Non disponible'}. Entrez-le ci-dessous.`);
-              console.log('📧 [DEV MODE] Verification code (error case):', verificationCode);
-              console.log('📧 [DEV MODE] Error details:', emailErr.response?.data || emailErr.message);
+          } catch (emailErr: any) {
+            console.error("❌ Email sending error caught:", emailErr);
+
+            // Fallback: Always try to show the code if we have it, even in production
+            // because the email service (Brevo) is blocking IPs
+            if (verificationCode) {
+              const errorMsg = emailErr.response?.data?.message || emailErr.message || "Email service error";
+
+              // More user friendly message that includes the code
+              setError(`Email service error: ${errorMsg}. Your ID code is: ${verificationCode}`);
               setStep('2fa');
               setResendTimeout(30);
             } else {
-              // En production, gérer les erreurs spécifiques
-              if (emailErr.response?.status === 503) {
-                setError('Email service temporarily unavailable. Please try again later.');
-              } else {
-                // Login succeeded but email failed - show code directly as fallback
-                const errorDetail = emailErr.response?.data || emailErr.message;
-                console.error('Email sending failed:', typeof errorDetail === 'object' ? JSON.stringify(errorDetail) : errorDetail);
-
-                if (verificationCode) {
-                  setError(`Verification email could not be sent. Your verification code is: ${verificationCode}. Please enter it below.`);
-                  setStep('2fa');
-                  setResendTimeout(30);
-                } else {
-                  setError(`Verification email could not be sent and code is unavailable. Error: ${typeof errorDetail === 'string' ? errorDetail.substring(0, 100) : 'Unknown error'}`);
-                }
-              }
+              setError('Failed to send verification email and code is unavailable.');
             }
-            return;
           }
         } catch (err: any) {
           console.error('Login error:', err);
