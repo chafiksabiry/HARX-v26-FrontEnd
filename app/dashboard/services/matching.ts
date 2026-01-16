@@ -3,9 +3,9 @@ import { Rep, Gig, Match, MatchResponse, MatchingWeights, GigAgentRequest } from
 // URLs des APIs - backend API
 const getBackendUrl = () => {
   if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || process.env.NEXT_PUBLIC_DASHBOARD_API?.replace('/api', '') || 'https://harxv26back.netlify.app';
+    return process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || process.env.NEXT_PUBLIC_DASHBOARD_API?.replace('/api', '');
   }
-  return process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || 'https://harxv26back.netlify.app';
+  return process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '');
 };
 
 const BACKEND_URL = getBackendUrl();

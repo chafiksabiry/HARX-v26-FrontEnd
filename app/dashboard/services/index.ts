@@ -3,16 +3,16 @@ import toast from 'react-hot-toast';
 
 const getApiUrl = () => {
   if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_DASHBOARD_API || process.env.NEXT_PUBLIC_API_URL || 'https://harxv26back.netlify.app/api';
+    return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_DASHBOARD_API || process.env.NEXT_PUBLIC_API_URL;
   }
-  return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://harxv26back.netlify.app/api';
+  return process.env.NEXT_PUBLIC_API_BASE_URL;
 };
 
 const getCallApiUrl = () => {
   if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_CALL_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://harxv26back.netlify.app/api';
+    return process.env.NEXT_PUBLIC_CALL_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
   }
-  return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://harxv26back.netlify.app/api';
+  return process.env.NEXT_PUBLIC_API_BASE_URL;
 };
 
 const api = axios.create({
