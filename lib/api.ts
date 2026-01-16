@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://harxv26back.netlify.app/api';
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || '';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -36,14 +36,14 @@ api.interceptors.response.use(
         // Only log network errors for non-critical endpoints to reduce console spam
         const url = error.config?.url || '';
         const isCriticalEndpoint = url.includes('/profiles/') || url.includes('/users/');
-        
+
         if (!isCriticalEndpoint) {
           console.warn('⚠️ Network error (backend may be offline):', url);
         } else {
           // For critical endpoints, log once but don't spam
           console.warn('⚠️ Backend connection refused. Please ensure the backend server is running on port 5000.');
         }
-        
+
         // For has-leads endpoint, return default value instead of throwing
         if (error.config?.url?.includes('/leads/company/') && error.config?.url?.includes('/has-leads')) {
           return Promise.resolve({
@@ -56,12 +56,12 @@ api.interceptors.response.use(
         }
       }
     }
-    
+
     // Silently handle 404 for check-first-login and check-user-type endpoints
     if (
       error.response?.status === 404 &&
       (error.config?.url?.includes('/auth/check-first-login') ||
-       error.config?.url?.includes('/auth/check-user-type'))
+        error.config?.url?.includes('/auth/check-user-type'))
     ) {
       // Return a resolved promise with default values instead of rejecting
       return Promise.resolve({
@@ -77,7 +77,7 @@ api.interceptors.response.use(
         config: error.config
       });
     }
-    
+
     // Silently handle 404 for companies/user/:userId endpoint (expected when user has no company)
     if (
       error.response?.status === 404 &&
@@ -96,7 +96,7 @@ api.interceptors.response.use(
         config: error.config
       });
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -144,35 +144,35 @@ export const auth = {
     return response.data;
   },
   sendOTP: async (userId: string, phoneNumber: string) => {
-    const response = await api.post('/auth/send-otp', {userId,phoneNumber});
+    const response = await api.post('/auth/send-otp', { userId, phoneNumber });
     return response.data;
   },
   verifyOTP: async (userId: string, otp: string) => {
-    const response = await api.post('/auth/verify-otp', {userId,otp});
+    const response = await api.post('/auth/verify-otp', { userId, otp });
     return response.data;
   },
-  verifyAccount: async (userId: string)=> {
-    const response= await api.post('/auth/verify-account', {userId});
+  verifyAccount: async (userId: string) => {
+    const response = await api.post('/auth/verify-account', { userId });
     return response.data;
   },
   generateVerificationCode: async (email: string) => {
-    const response= await api.post('/auth/generate-verification-code',{ email });
-    console.log("responseRecovery",response);
+    const response = await api.post('/auth/generate-verification-code', { email });
+    console.log("responseRecovery", response);
     return response.data;
   },
-  changePassword: async (email: string, newPassword: string ) => {
-    const response= await api.post('/auth/change-password',{ email,newPassword});
-    console.log("responsechangePassword",response);
+  changePassword: async (email: string, newPassword: string) => {
+    const response = await api.post('/auth/change-password', { email, newPassword });
+    console.log("responsechangePassword", response);
     return response.data;
   },
   linkedinSignIn: async (code: string) => {
-    const response= await api.post('/auth/signin/linkedin',{ code });
-    console.log("responsSignInLinkedin",response);
+    const response = await api.post('/auth/signin/linkedin', { code });
+    console.log("responsSignInLinkedin", response);
     return response.data;
   },
   sendVerificationEmail: async (email: string, code: string) => {
-    const response= await api.post('/auth/send-verification-email',{ email,code });
-    console.log("responseSendVerificationEmail",response);
+    const response = await api.post('/auth/send-verification-email', { email, code });
+    console.log("responseSendVerificationEmail", response);
     return response.data;
   },
   checkFirstLogin: async (userId: string) => {
@@ -180,7 +180,7 @@ export const auth = {
     const response = await api.post('/auth/check-first-login', { userId });
     return response.data;
   },
-  checkUserType: async(userId: String) =>{
+  checkUserType: async (userId: String) => {
     // Interceptor handles 404 silently, so we can just return the response
     const response = await api.post('/auth/check-user-type', { userId });
     return response.data;
@@ -200,7 +200,7 @@ export const companies = {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         validateStatus: (status) => status === 200 || status === 404 // Accepter 200 et 404 comme succès
       });
-      
+
       // Si 404, retourner une réponse standardisée
       if (response.status === 404) {
         return {
@@ -209,7 +209,7 @@ export const companies = {
           data: null
         };
       }
-      
+
       return response.data;
     } catch (error: any) {
       // Fallback si validateStatus ne fonctionne pas comme prévu
@@ -405,7 +405,7 @@ export const files = {
     const response = await api.patch(`/files/${id}/toggle-public`);
     return response.data;
   },
-  
+
 };
 
 export const skills = {
