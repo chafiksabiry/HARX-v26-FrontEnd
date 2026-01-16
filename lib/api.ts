@@ -198,7 +198,7 @@ export const companies = {
       // Utiliser validateStatus pour que les 404 ne soient pas considérés comme des erreurs
       const response = await api.get(`/companies/user/${userId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-        validateStatus: (status) => status === 200 || status === 404 // Accepter 200 et 404 comme succès
+        validateStatus: (status: number) => status === 200 || status === 404 // Accepter 200 et 404 comme succès
       });
 
       // Si 404, retourner une réponse standardisée
