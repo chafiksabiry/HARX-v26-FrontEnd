@@ -36,8 +36,12 @@ export interface AvailablePhoneNumber {
   provider?: 'telnyx' | 'twilio';
 }
 
-// Use backend URL from environment or fallback to Netlify backend
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://harxv26back.netlify.app/api';
+// Use backend URL from environment
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
+
+if (!BASE_URL) {
+  throw new Error('NEXT_PUBLIC_API_BASE_URL environment variable is required');
+}
 
 // Create axios instance with default config
 const api = axios.create({

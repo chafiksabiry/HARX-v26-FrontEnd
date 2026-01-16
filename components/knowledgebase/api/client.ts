@@ -5,12 +5,13 @@ import axios from 'axios';
 // In Next.js, use process.env.NEXT_PUBLIC_* for client-side variables
 const getBaseURL = () => {
   // Try Next.js environment variable first
-  if (typeof window !== 'undefined' && (process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL)) {
-    const url = process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
-    return url?.endsWith('/api') ? url : `${url}/api`;
+  const url = process.env.NEXT_PUBLIC_BACKEND_API || process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  if (!url) {
+    throw new Error('NEXT_PUBLIC_API_BASE_URL environment variable is required');
   }
-  // Fallback to Netlify backend
-  return 'https://harxv26back.netlify.app/api';
+
+  return url?.endsWith('/api') ? url : `${url}/api`;
 };
 
 const apiClient = axios.create({

@@ -39,8 +39,8 @@
 
 ### For Local Development (.env)
 ```bash
-# Backend API
-NEXT_PUBLIC_API_BASE_URL=https://harxv26back.netlify.app/api
+# Backend API (REQUIRED - set to your backend deployment URL)
+NEXT_PUBLIC_API_BASE_URL=https://your-backend.netlify.app/api
 
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -65,9 +65,9 @@ Add these in **Site Settings > Environment Variables**:
    - Your OpenAI API key
    - Format: `sk-...`
 
-3. **NEXT_PUBLIC_API_BASE_URL** (Optional - has default)
+3. **NEXT_PUBLIC_API_BASE_URL** (REQUIRED)
    - Backend API URL
-   - Default: `https://harxv26back.netlify.app/api`
+   - Must be set to your deployed backend URL
 
 4. **NEXT_PUBLIC_SUPABASE_URL** (Optional - if using Supabase)
    - Your Supabase project URL
@@ -92,7 +92,7 @@ Add these in **Site Settings > Environment Variables**:
    - Redeploy the site
 
 2. **Verify Backend Configuration:**
-   - Ensure `https://harxv26back.netlify.app/api` is accessible
+   - Ensure your backend API URL (set via NEXT_PUBLIC_API_BASE_URL) is accessible
    - Check that backend has proper CORS headers
    - Verify authentication endpoints are working
 

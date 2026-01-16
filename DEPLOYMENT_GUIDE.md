@@ -26,11 +26,11 @@ MONGODB_URI=mongodb://harx:ix5S3vU6BjKn4MHp@207.180.226.2:27017/V25_HarxPreProd
 # OpenAI API Key (Required for AI-powered features)
 OPENAI_API_KEY=sk-your-openai-api-key
 
-# Backend API URL (Already has default fallback)
-NEXT_PUBLIC_API_BASE_URL=https://harxv26back.netlify.app/api
+# Backend API URL (REQUIRED - set to your backend deployment URL)
+NEXT_PUBLIC_API_BASE_URL=https://your-backend-domain.netlify.app/api
 
 # Dashboard API URL (If different from main backend)
-NEXT_PUBLIC_DASHBOARD_API_URL=https://api-dashboard.harx.ai/api
+NEXT_PUBLIC_DASHBOARD_API_URL=https://your-dashboard-api-domain.com/api
 ```
 
 ## Step 2: Push to GitHub

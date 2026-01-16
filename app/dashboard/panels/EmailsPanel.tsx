@@ -207,7 +207,10 @@ Date: ${formatDate(email.receivedTime)}
       console.log("Tentative de configuration avec:", configData);
       
       // Première étape : Configuration
-      const dashboardApiUrl = process.env.NEXT_PUBLIC_DASHBOARD_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://harxv26back.netlify.app/api';
+      const dashboardApiUrl = process.env.NEXT_PUBLIC_DASHBOARD_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!dashboardApiUrl) {
+        throw new Error('NEXT_PUBLIC_API_BASE_URL environment variable is required');
+      }
       const configResponse = await fetch(`${dashboardApiUrl}/zoho/configure`, {
         method: 'POST',
         headers: {
