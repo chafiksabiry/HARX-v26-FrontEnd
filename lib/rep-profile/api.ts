@@ -23,7 +23,6 @@ export const getProfile = async (userId?: string) => {
     if (!error.response) {
       console.error(`Network error fetching profile${userId ? ` for user ${userId}` : ''}:`, error.message);
       console.error('This usually means the backend server is not running or not accessible.');
-      console.error('Please ensure the backend is running on', process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL
       // Return null for network errors to allow the app to continue
       return null;
     }
