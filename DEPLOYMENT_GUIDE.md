@@ -140,6 +140,8 @@ The following are excluded because they're false positives (public URLs):
 - `NEXT_PUBLIC_GIGS_API`
 - `NEXT_PUBLIC_KNOWLEDGE_BASE_URL`
 - `NEXT_PUBLIC_SCRIPT_GENERATION_BASE_URL`
+- `NEXT_PUBLIC_API_BASE_URL`
+- `NEXT_PUBLIC_APP_URL`
 
 ## Support
 
