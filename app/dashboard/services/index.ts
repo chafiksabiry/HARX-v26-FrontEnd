@@ -12,6 +12,7 @@ const getCallApiUrl = () => {
   if (typeof window !== 'undefined') {
     return process.env.NEXT_PUBLIC_CALL_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
   }
+
   return process.env.NEXT_PUBLIC_API_BASE_URL;
 };
 
@@ -29,24 +30,10 @@ const apiCall = axios.create({
   }
 });
 
-
-
-// Request interceptor
-/* api.interceptors.request.use(
-  config => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  error => Promise.reject(error)
-); */
-
 // Response interceptor
 api.interceptors.response.use(
-  response => response,
-  error => {
+  (  response: any) => response,
+  (  error: { response: { data: { message: string; }; }; }) => {
     const message = error.response?.data?.message || 'An error occurred';
     toast.error(message);
     return Promise.reject(error);
