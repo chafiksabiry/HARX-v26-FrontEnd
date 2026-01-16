@@ -25,7 +25,7 @@ export const googleApi = {
   search: async (query: string): Promise<GoogleSearchResult[]> => {
     try {
       // Use backend API (port 5000) instead of Next.js API routes
-      const apiUrl = process.env.NEXT_PUBLIC_COMPANY_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://harxv26back.netlify.app/api';
+      const apiUrl = process.env.NEXT_PUBLIC_COMPANY_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 
       const response = await axios.get<{ success: boolean; items: GoogleSearchResult[]; error?: string; details?: string }>(
         `${apiUrl}/google/search`,
         {
