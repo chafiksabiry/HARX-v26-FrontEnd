@@ -41,12 +41,12 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
       const userId = Cookies.get('userId') || localStorage.getItem('userId');
       const token = localStorage.getItem('token');
       const hasRedirected = localStorage.getItem('hasRedirected');
-      
+
       if (userId && token && !hasRedirected) {
         try {
           const checkFirstLogin = await auth.checkFirstLogin(userId);
           const checkUserType = await auth.checkUserType(userId);
-          
+
           // Si l'utilisateur n'existe pas (404 géré silencieusement), nettoyer les credentials
           if (!checkFirstLogin.success || !checkUserType.success) {
             Cookies.remove('userId');
@@ -55,13 +55,13 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
             localStorage.removeItem('hasRedirected');
             return;
           }
-          
+
           let redirectTo;
 
           // Extraire les valeurs depuis la structure de réponse { success: true, data: {...} }
           const isFirstLogin = checkFirstLogin.data?.isFirstLogin ?? checkFirstLogin.isFirstLogin ?? false;
           const userType = checkUserType.data?.userType ?? checkUserType.userType;
-          
+
           console.log("checkExistingUser - isFirstLogin:", isFirstLogin, "userType:", userType);
 
           // Toujours utiliser getAuthRedirect qui vérifie automatiquement
@@ -91,7 +91,7 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
           setIsAlreadyLoggedIn(true);
           setRedirectPath(redirectTo || '/');
           localStorage.setItem('hasRedirected', 'true');
-          
+
           // Redirect after showing the message for 2 seconds
           setTimeout(() => {
             if (redirectTo) {
@@ -116,7 +116,7 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
     };
 
     checkExistingUser();
-    
+
     // Cleanup function to remove the redirect flag when component unmounts
     return () => {
       localStorage.removeItem('hasRedirected');
@@ -166,39 +166,44 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
         try {
           const result = await auth.login({ email: formData.email, password: formData.password });
           console.log("result", result);
-          
+
           // Récupérer le code depuis la réponse du login
-          const verificationCode = result.data?.code || result.code;
-          
+          // Support multiple response structures
+          const verificationCode = result.data?.code || result.code || result?.data?.data?.code;
+
+          if (!verificationCode) {
+            console.error("⚠️ Verification code not found in login response:", result);
+          }
+
           try {
             const verification = await auth.sendVerificationEmail(formData.email, verificationCode);
             console.log("verification", verification);
-            
+
             // Si mode dev ou email désactivé, afficher le code
             // Le code peut être dans plusieurs endroits selon la structure de la réponse
-            const codeToDisplay = verification.code 
-              || verification.data?.code 
-              || verification.message?.code 
+            const codeToDisplay = verification.code
+              || verification.data?.code
+              || verification.message?.code
               || verification.data?.data?.code
               || verificationCode;
-            
+
             // Vérifier si on est en mode dev (plusieurs façons de le détecter)
-            const isDevMode = verification.devMode 
-              || verification.data?.devMode 
+            const isDevMode = verification.devMode
+              || verification.data?.devMode
               || verification.message?.devMode
               || verification.success === false
               || verification.message?.success === false;
-            
+
             if (isDevMode && codeToDisplay) {
-              const errorMsg = verification.error 
-                || verification.data?.error 
+              const errorMsg = verification.error
+                || verification.data?.error
                 || verification.message?.error;
-              
+
               // En mode dev, afficher le code comme un message informatif (pas une erreur bloquante)
-              const devMessage = errorMsg 
+              const devMessage = errorMsg
                 ? `Mode développement: Email non envoyé (${errorMsg.substring(0, 100)}...). Votre code de vérification est: ${codeToDisplay}`
                 : `Mode développement: Votre code de vérification est: ${codeToDisplay}. Entrez-le ci-dessous.`;
-              
+
               // Utiliser setError pour l'affichage, mais ce n'est pas vraiment une erreur bloquante
               setError(devMessage);
               console.log('📧 [DEV MODE] Verification code:', codeToDisplay);
@@ -207,16 +212,16 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
               setError('Failed to send verification email. Please try again.');
               return;
             }
-            
+
             setStep('2fa');
             setResendTimeout(30); // Set initial cooldown
           } catch (emailErr: any) {
             // En cas d'erreur, afficher le code en mode dev
             const isDev = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_NODE_ENV === 'development';
-            
+
             if (isDev) {
               // En mode dev, toujours afficher le code
-              setError(`Mode développement: Email non envoyé. Votre code de vérification est: ${verificationCode}. Entrez-le ci-dessous.`);
+              setError(`Mode développement: Email non envoyé. Votre code de vérification est: ${verificationCode || 'Non disponible'}. Entrez-le ci-dessous.`);
               console.log('📧 [DEV MODE] Verification code (error case):', verificationCode);
               console.log('📧 [DEV MODE] Error details:', emailErr.response?.data || emailErr.message);
               setStep('2fa');
@@ -227,17 +232,23 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
                 setError('Email service temporarily unavailable. Please try again later.');
               } else {
                 // Login succeeded but email failed - show code directly as fallback
-                console.error('Email sending failed:', emailErr.response?.data || emailErr.message);
-                setError(`Verification email could not be sent. Your verification code is: ${verificationCode}. Please enter it below.`);
-                setStep('2fa');
-                setResendTimeout(30);
+                const errorDetail = emailErr.response?.data || emailErr.message;
+                console.error('Email sending failed:', typeof errorDetail === 'object' ? JSON.stringify(errorDetail) : errorDetail);
+
+                if (verificationCode) {
+                  setError(`Verification email could not be sent. Your verification code is: ${verificationCode}. Please enter it below.`);
+                  setStep('2fa');
+                  setResendTimeout(30);
+                } else {
+                  setError(`Verification email could not be sent and code is unavailable. Error: ${typeof errorDetail === 'string' ? errorDetail.substring(0, 100) : 'Unknown error'}`);
+                }
               }
             }
             return;
           }
         } catch (err: any) {
           console.error('Login error:', err);
-          
+
           // Handle different error types
           if (err.status === 503 || err.response?.status === 503) {
             setError('Database connection error. Please check if MongoDB is running and try again later.');
@@ -271,15 +282,15 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
           email: formData.email,
           code: formData.verificationCode
         });
-        
+
         console.log("resultverificationEmail", resultverificationEmail);
-        
+
         // Vérifier si la vérification a réussi
         if (!resultverificationEmail.success || resultverificationEmail.error) {
           setError(resultverificationEmail.error || 'Invalid email verification code');
           return;
         }
-        
+
         // Si succès, continuer avec l'authentification
         if (resultverificationEmail.token) {
           // Decode the token to get the payload
@@ -291,20 +302,20 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
           Cookies.set('userId', userId); // Save only the userId
           console.log("userId", Cookies.get('userId'));
           setStep('success');
-          
+
           try {
             const checkFirstLogin = await auth.checkFirstLogin(userId);
             console.log("checkFirstLogin", checkFirstLogin);
             const checkUserType = await auth.checkUserType(userId);
             console.log("checkUserType", checkUserType);
             let redirectTo;
-            
+
             // Extraire les valeurs depuis la structure de réponse { success: true, data: {...} }
             const isFirstLogin = checkFirstLogin.data?.isFirstLogin ?? checkFirstLogin.isFirstLogin ?? false;
             const userType = checkUserType.data?.userType ?? checkUserType.userType;
-            
+
             console.log("isFirstLogin:", isFirstLogin, "userType:", userType);
-            
+
             // Si l'utilisateur a déjà un type défini, rediriger selon le type (ignorer isFirstLogin)
             // Sinon, si premier login OU pas de type → rediriger vers choice page
             if (userType === 'company') {
@@ -331,11 +342,11 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
             }
             setTimeout(() => {
               if (redirectTo) {
-                  if (redirectTo.startsWith('http')) {
-                      window.location.href = redirectTo;
-                  } else {
-                      router.push(redirectTo);
-                  }
+                if (redirectTo.startsWith('http')) {
+                  window.location.href = redirectTo;
+                } else {
+                  router.push(redirectTo);
+                }
               }
             }, 1500);
           } catch (redirectErr: any) {
