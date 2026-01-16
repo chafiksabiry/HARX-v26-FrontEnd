@@ -2,7 +2,7 @@ import { GigData } from '../../types/gigs';
 import Cookies from 'js-cookie';
 import api from '@/lib/rep-profile/client'; // Use the central axios client
 
-const API_URL = process.env.NEXT_PUBLIC_GIGS_API || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://harxv26back.netlify.app/api';
+const API_URL = process.env.NEXT_PUBLIC_GIGS_API || process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // Types for countries API
 export interface Country {
@@ -131,11 +131,11 @@ export interface CurrencyResponse {
 export async function fetchAllCountries(): Promise<Country[]> {
   try {
     const { data } = await api.get('/countries');
-    
+
     if (!data.success) {
       throw new Error('Failed to fetch countries');
     }
-    
+
     return data.data;
   } catch (error) {
     console.error('Error fetching countries:', error);
@@ -146,11 +146,11 @@ export async function fetchAllCountries(): Promise<Country[]> {
 export async function fetchCountryById(countryId: string): Promise<Country> {
   try {
     const { data } = await api.get(`/countries/${countryId}`);
-    
+
     if (!data.success) {
       throw new Error('Failed to fetch country');
     }
-    
+
     return data.data;
   } catch (error: any) {
     // If 404, try to find country in the list
@@ -195,11 +195,11 @@ export async function getCountryNameById(countryId: string): Promise<string> {
 export async function fetchAllTimezones(): Promise<Timezone[]> {
   try {
     const { data } = await api.get('/timezones');
-    
+
     if (!data.success) {
       throw new Error('Failed to fetch timezones');
     }
-    
+
     return data.data;
   } catch (error) {
     console.error('Error fetching timezones:', error);
@@ -210,11 +210,11 @@ export async function fetchAllTimezones(): Promise<Timezone[]> {
 export async function fetchTimezoneById(timezoneId: string): Promise<Timezone> {
   try {
     const { data } = await api.get(`/timezones/${timezoneId}`);
-    
+
     if (!data.success) {
       throw new Error('Failed to fetch timezone');
     }
-    
+
     return data.data;
   } catch (error) {
     console.error('Error fetching timezone:', error);
@@ -235,11 +235,11 @@ export async function getTimezoneNameById(timezoneId: string): Promise<string> {
 export async function fetchCompanies() {
   try {
     const { data } = await api.get('/companies');
-    
+
     if (!data.success) {
       throw new Error(data.message || 'Failed to fetch companies');
     }
-    
+
     return data.data;
   } catch (error) {
     console.error('❌ API: Error fetching companies:', error);
@@ -250,11 +250,11 @@ export async function fetchCompanies() {
 export async function fetchCompanyById(companyId: string) {
   try {
     const { data } = await api.get(`/companies/${companyId}`);
-    
+
     if (!data.success) {
       throw new Error(data.message || 'Failed to fetch company');
     }
-    
+
     return data.data;
   } catch (error) {
     console.error('❌ API: Error fetching company:', error);
@@ -272,7 +272,7 @@ interface Company {
 // Function to fix schedule data automatically
 function fixScheduleData(data: GigData): GigData {
   const workingDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  
+
   // Fix availability.schedule
   if (data.availability && data.availability.schedule) {
     const fixedAvailabilitySchedule = data.availability.schedule.map((schedule, index) => {
@@ -285,10 +285,10 @@ function fixScheduleData(data: GigData): GigData {
       }
       return schedule;
     });
-    
+
     data.availability.schedule = fixedAvailabilitySchedule;
   }
-  
+
   // Fix schedule.schedules
   if (data.schedule && data.schedule.schedules) {
     const fixedScheduleSchedules = data.schedule.schedules.map((schedule, index) => {
@@ -301,24 +301,24 @@ function fixScheduleData(data: GigData): GigData {
       }
       return schedule;
     });
-    
+
     data.schedule.schedules = fixedScheduleSchedules;
   }
-  
+
   return data;
 }
 
 export async function updateGigData(gigId: string, gigData: GigData): Promise<{ data: any; error?: Error }> {
   try {
     const userId = Cookies.get('userId') ?? "";
-    
+
     if (!userId) {
       throw new Error('User ID not found in cookies');
     }
 
     const companyId = Cookies.get('companyId') ?? "";
     const fixedGigData = fixScheduleData(gigData);
-    
+
     // Format skills data
     const formattedSkills = {
       ...fixedGigData.skills,
@@ -378,7 +378,7 @@ export async function updateGigData(gigId: string, gigData: GigData): Promise<{ 
     })();
 
     const { schedule, time_zone, destinationZones, ...cleanGigData } = fixedGigData;
-    
+
     const gigDataWithIds = {
       ...cleanGigData,
       userId,
@@ -394,9 +394,9 @@ export async function updateGigData(gigId: string, gigData: GigData): Promise<{ 
     // if (!response.ok) { ... } // Axios throws on error usually, or we check response.status
 
     if (response.status !== 200) {
-       return { data: null, error: new Error('Failed to update gig data') };
+      return { data: null, error: new Error('Failed to update gig data') };
     }
-    
+
     return { data: response.data, error: undefined };
 
   } catch (error: any) {
@@ -408,14 +408,14 @@ export async function updateGigData(gigId: string, gigData: GigData): Promise<{ 
 export async function saveGigData(gigData: GigData): Promise<{ data: any; error?: Error }> {
   try {
     const userId = Cookies.get('userId') ?? "";
-    
+
     if (!userId) {
       throw new Error('User ID not found in cookies');
     }
 
     const companyId = Cookies.get('companyId') ?? "";
     const fixedGigData = fixScheduleData(gigData);
-    
+
     // ... (formatting code remains same, omitted for brevity in replace block if possible, but context needed)
     const formattedSkills = {
       ...fixedGigData.skills,
@@ -473,7 +473,7 @@ export async function saveGigData(gigData: GigData): Promise<{ data: any; error?
     })();
 
     const { schedule, time_zone, destinationZones, ...cleanGigData } = fixedGigData;
-    
+
     const gigDataWithIds = {
       ...cleanGigData,
       userId,
@@ -491,7 +491,7 @@ export async function saveGigData(gigData: GigData): Promise<{ data: any; error?
       console.error('❌ Backend returned error status:', response.status, errorMessage);
       return { data: null, error: new Error(errorMessage) };
     }
-    
+
     console.log('✅ Gig saved successfully:', response.data);
     return { data: response.data, error: undefined };
 
@@ -667,7 +667,7 @@ interface ApiResponse<T> {
 export async function fetchActivities(): Promise<{ data: Activity[]; error?: Error }> {
   try {
     const { data } = await api.get('/activities');
-    
+
     if (!data.success) throw new Error(data.message || 'Failed to fetch activities');
     return { data: data.data };
   } catch (error) {
@@ -679,7 +679,7 @@ export async function fetchActivities(): Promise<{ data: Activity[]; error?: Err
 export async function fetchIndustries(): Promise<{ data: Industry[]; error?: Error }> {
   try {
     const { data } = await api.get('/industries');
-    
+
     if (!data.success) throw new Error(data.message || 'Failed to fetch industries');
     return { data: data.data };
   } catch (error) {
@@ -691,7 +691,7 @@ export async function fetchIndustries(): Promise<{ data: Industry[]; error?: Err
 export async function fetchLanguages(): Promise<{ data: Language[]; error?: Error }> {
   try {
     const { data } = await api.get('/languages');
-    
+
     if (!data.success) throw new Error(data.message || 'Failed to fetch languages');
     return { data: data.data };
   } catch (error) {
@@ -703,7 +703,7 @@ export async function fetchLanguages(): Promise<{ data: Language[]; error?: Erro
 export async function fetchAllCurrencies(): Promise<Currency[]> {
   try {
     const { data } = await api.get('/currencies');
-    
+
     if (!data.success) throw new Error(data.message || 'Failed to fetch currencies');
     return data.data;
   } catch (error) {
@@ -715,7 +715,7 @@ export async function fetchAllCurrencies(): Promise<Currency[]> {
 export async function fetchCurrencyById(currencyId: string): Promise<Currency | null> {
   try {
     const { data } = await api.get(`/currencies/${currencyId}`);
-    
+
     if (!data.success) throw new Error(data.message || 'Failed to fetch currency');
     return data.data;
   } catch (error: any) {
