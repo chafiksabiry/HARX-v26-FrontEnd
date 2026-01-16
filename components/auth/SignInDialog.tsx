@@ -197,12 +197,20 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
               console.log("📧 Showing code fallback:", codeToDisplay);
               // Even in production, if we have the code but email failed, show it to prevent lockout
               // This is a temporary measure for stability
-              if (codeToDisplay) {
-                setError(`Verification code: ${codeToDisplay} (Email sending failed)`);
-                setStep('2fa');
-                setResendTimeout(30);
-                return;
+              // Detect specific Brevo errors for better UI feedback
+              let failureReason = 'Email sending failed';
+              if (verification.error) {
+                if (verification.error.includes('unrecognised IP') || verification.error.includes('unauthorized')) {
+                  failureReason = 'Brevo IP Blocked (Netlify)';
+                } else {
+                  failureReason = 'Email service error';
+                }
               }
+
+              setError(`Verification code: ${codeToDisplay} (${failureReason})`);
+              setStep('2fa');
+              setResendTimeout(30);
+              return;
             }
 
             setStep('2fa');
