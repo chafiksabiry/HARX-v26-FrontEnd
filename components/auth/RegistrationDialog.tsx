@@ -129,8 +129,10 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
             // Send verification email
             // Send verification email
             // Note: verificationCode is at the root of the response object
-            if (RegisterResult && (RegisterResult.verificationCode || RegisterResult.result?.verificationCode)) {
-              const codeToSend = RegisterResult.verificationCode || RegisterResult.result?.verificationCode;
+            // Backend returns: { success: true, token, verificationCode, data: { id, email, fullName } }
+            if (RegisterResult && (RegisterResult.verificationCode || RegisterResult.data?.code || RegisterResult.data?.verificationCode)) {
+              // Determine where the code is (root or data)
+              const codeToSend = RegisterResult.verificationCode || RegisterResult.data?.code || RegisterResult.data?.verificationCode;
               const verificationMail = await auth.sendVerificationEmail(formData.email, codeToSend);
               console.log("verification", verificationMail);
 
@@ -147,13 +149,23 @@ export default function RegistrationDialog({ onSignIn }: RegistrationDialogProps
                 }
               }
             } else {
-              console.warn("⚠️ No verification code found in registration result");
+              console.warn("⚠️ No verification code found in registration result", RegisterResult);
             }
 
             // Send OTP
-            if (RegisterResult && RegisterResult.result && RegisterResult.result._id) {
-              const OtpSendResult = await auth.sendOTP(RegisterResult.result._id, formData.phone);
+            // Check for ID in RegisterResult.data.id (new structure) or RegisterResult.result._id (old structure fallback)
+            const userId = RegisterResult.data?.id || RegisterResult.result?._id;
+
+            if (RegisterResult && userId) {
+              // If we didn't send email (no code), we assume backend takes care of it or we rely on OTP
+              // But for now, let's proceed to verification step
+              const OtpSendResult = await auth.sendOTP(userId, formData.phone);
               console.log("OtpSendResult::", OtpSendResult);
+
+              // Store ID for next steps
+              localStorage.setItem('userId', userId);
+              Cookies.set('userId', userId);
+
               setStep('verification');
             } else {
               console.error("❌ Cannot proceed: User ID missing in registration result", RegisterResult);
