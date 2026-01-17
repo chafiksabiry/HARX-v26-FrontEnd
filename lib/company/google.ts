@@ -24,10 +24,9 @@ export interface GoogleSearchResponse {
 export const googleApi = {
   search: async (query: string): Promise<GoogleSearchResult[]> => {
     try {
-      // Use backend API (port 5000) instead of Next.js API routes
-      const apiUrl = process.env.NEXT_PUBLIC_COMPANY_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL
+      // Use local Next.js API proxy to avoid CORS issues
       const response = await axios.get<{ success: boolean; items: GoogleSearchResult[]; error?: string; details?: string }>(
-        `${apiUrl}/google/search`,
+        '/api/google/search',
         {
           params: {
             q: query,
@@ -38,11 +37,11 @@ export const googleApi = {
       if (!response.data.success) {
         throw new Error(response.data.error || 'Failed to fetch search results');
       }
-      
+
       return response.data.items || [];
     } catch (error: any) {
       console.error('Google Search API Error:', error);
-      
+
       // Provide more helpful error messages
       if (error.response?.data) {
         const errorData = error.response.data;
@@ -54,7 +53,7 @@ export const googleApi = {
           throw new Error(`${errorData.error}${errorData.details ? `: ${errorData.details}` : ''}`);
         }
       }
-      
+
       throw new Error(error.message || 'Failed to fetch search results');
     }
   },
