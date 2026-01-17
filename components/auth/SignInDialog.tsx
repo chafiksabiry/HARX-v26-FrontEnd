@@ -167,6 +167,11 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
           const result = await auth.login({ email: formData.email, password: formData.password });
           console.log("result", result);
 
+          // Handle non-throwing errors (due to axios validateStatus < 500)
+          if (result && result.success === false) {
+            throw new Error(result.error || 'Login failed');
+          }
+
           // Récupérer le code depuis la réponse du login
           // Support multiple response structures and ensure we catch it
           const loginData = result.data || result;
@@ -178,46 +183,57 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
             console.log("✅ Verification code received:", verificationCode);
           }
 
-          try {
-            const verification = await auth.sendVerificationEmail(formData.email, verificationCode);
+          if (verificationCode) {
+            try {
+              const verification = await auth.sendVerificationEmail(formData.email, verificationCode);
 
-            // Si mode dev ou email désactivé, afficher le code
-            const codeToDisplay = verification.code
-              || verification.data?.code
-              || verificationCode;
+              // Si mode dev ou email désactivé, afficher le code
+              const codeToDisplay = verification.code
+                || verification.data?.code
+                || verificationCode;
 
-            const isDevMode = verification.devMode || verification.data?.devMode || process.env.NODE_ENV === 'development';
+              const isDevMode = verification.devMode || verification.data?.devMode || process.env.NODE_ENV === 'development';
 
-            if (isDevMode || !verification.success) {
-              console.log("📧 Showing code fallback:", codeToDisplay);
-              // Even in production, if we have the code but email failed, show it to prevent lockout
-              // This is a temporary measure for stability
-              if (codeToDisplay) {
-                setError(`Verification code: ${codeToDisplay} (Email sending failed)`);
+              if (isDevMode || !verification.success) {
+                console.log("📧 Showing code fallback:", codeToDisplay);
+                // Even in production, if we have the code but email failed, show it to prevent lockout
+                // This is a temporary measure for stability
+                // Detect specific Brevo errors for better UI feedback
+                let failureReason = 'Email sending failed';
+                if (verification.error) {
+                  if (verification.error.includes('unrecognised IP') || verification.error.includes('unauthorized')) {
+                    failureReason = 'Brevo IP Blocked (Netlify)';
+                  } else {
+                    failureReason = 'Email service error';
+                  }
+                }
+
+                setError(`Verification code: ${codeToDisplay} (${failureReason})`);
                 setStep('2fa');
                 setResendTimeout(30);
                 return;
               }
-            }
 
-            setStep('2fa');
-            setResendTimeout(30);
-
-          } catch (emailErr: any) {
-            console.error("❌ Email sending error caught:", emailErr);
-
-            // Fallback: Always try to show the code if we have it, even in production
-            // because the email service (Brevo) is blocking IPs
-            if (verificationCode) {
-              const errorMsg = emailErr.response?.data?.message || emailErr.message || "Email service error";
-
-              // More user friendly message that includes the code
-              setError(`Email service error: ${errorMsg}. Your ID code is: ${verificationCode}`);
               setStep('2fa');
               setResendTimeout(30);
-            } else {
-              setError('Failed to send verification email and code is unavailable.');
+
+            } catch (emailErr: any) {
+              console.error("❌ Email sending error caught:", emailErr);
+
+              // Fallback: Always try to show the code if we have it, even in production
+              // because the email service (Brevo) is blocking IPs
+              if (verificationCode) {
+                const errorMsg = emailErr.response?.data?.message || emailErr.message || "Email service error";
+
+                // More user friendly message that includes the code
+                setError(`Email service error: ${errorMsg}. Your ID code is: ${verificationCode}`);
+                setStep('2fa');
+                setResendTimeout(30);
+              }
             }
+          } else {
+            console.error("❌ Skipping email sending because verification code is missing.");
+            setError('Login successful but failed to retrieve verification code.');
           }
         } catch (err: any) {
           console.error('Login error:', err);
@@ -229,7 +245,7 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
             // Invalid credentials (user doesn't exist or wrong password)
             const errorMsg = err.message || err.response?.data?.error || 'Invalid email or password. Please try again.';
             setError(errorMsg);
-          } else if (err.status === 401 || err.response?.status === 401) {
+          } else if (err.status === 401 || err.response?.status === 40201) {
             // Unauthorized
             setError('Invalid email or password. Please try again.');
           } else if (err.status === 404 || err.response?.status === 404) {
