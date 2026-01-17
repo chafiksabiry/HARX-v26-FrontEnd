@@ -245,7 +245,7 @@ export default function SignInDialog({ onRegister, onForgotPassword }: SignInDia
             // Invalid credentials (user doesn't exist or wrong password)
             const errorMsg = err.message || err.response?.data?.error || 'Invalid email or password. Please try again.';
             setError(errorMsg);
-          } else if (err.status === 401 || err.response?.status === 401) {
+          } else if (err.status === 401 || err.response?.status === 40201) {
             // Unauthorized
             setError('Invalid email or password. Please try again.');
           } else if (err.status === 404 || err.response?.status === 404) {
